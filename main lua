@@ -1,1 +1,197 @@
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local userId = LocalPlayer.UserId
+local profileUrl = "https://www.roblox.com/users/" .. userId .. "/profile"
 
+-- Load Rayfield
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+-- Create the window
+local Window = Rayfield:CreateWindow({
+    Name = "c00lasken",
+    LoadingTitle = "Loading assets...",
+    LoadingSubtitle = "Made By alchemist",
+    ConfigurationSaving = {
+        Enabled = false
+    },
+    Discord = {
+        Enabled = false
+    },
+    KeySystem = false
+})
+
+-- Create Tabs
+local InfoTab = Window:CreateTab("Info", 4483362458)
+local MainTab = Window:CreateTab("Main", 4483362458)
+local SettingsTab = Window:CreateTab("Settings", 4483362458)
+local HumanoidTab = Window:CreateTab("Humanoid", 4483362458)
+local ForaskenTab = Window:CreateTab("Forasken", 4483362458)
+
+-- Add Sections
+InfoTab:CreateSection("Info")
+MainTab:CreateSection("Main")
+SettingsTab:CreateSection("Theme")
+HumanoidTab:CreateSection("Humanoid")
+ForaskenTab:CreateSection("Forasken")
+
+-- Copy to clipboard + notify
+local function CopyToClipboard(text)
+    setclipboard(text)
+    Rayfield:Notify({
+        Title = "✅ Copied to Clipboard!",
+        Content = "You can now paste it anywhere.",
+        Duration = 3,
+        Image = 7734053494
+    })
+end
+
+-- Info Tab Buttons
+InfoTab:CreateButton({
+    Name = "Executor: " .. (identifyexecutor and identifyexecutor() or "Unknown"),
+    Callback = function()
+        CopyToClipboard(identifyexecutor and identifyexecutor() or "Unknown")
+    end
+})
+
+InfoTab:CreateButton({
+    Name = "Job ID: " .. game.JobId,
+    Callback = function()
+        CopyToClipboard(game.JobId)
+    end
+})
+
+InfoTab:CreateButton({
+    Name = "My Discord: alchemist_gaming2.0",
+    Callback = function()
+        CopyToClipboard("alchemist_gaming2.0")
+    end
+})
+
+InfoTab:CreateButton({
+    Name = "Join My Server: discord.gg/ringta",
+    Callback = function()
+        CopyToClipboard("https://discord.gg/ringta")
+    end
+})
+
+-- User's Roblox Profile at bottom
+InfoTab:CreateSection("Your Roblox Profile")
+InfoTab:CreateParagraph({
+    Title = LocalPlayer.DisplayName,
+    Content = "Username: @" .. LocalPlayer.Name
+})
+InfoTab:CreateButton({
+    Name = "Open My Roblox Profile",
+    Callback = function()
+        CopyToClipboard(profileUrl)
+        Rayfield:Notify({
+            Title = "Profile URL Copied!",
+            Content = "Paste it in your browser to view your profile.",
+            Duration = 4,
+            Image = 4483362458
+        })
+    end
+})
+
+-- Theme system
+local ThemeColors = {
+    ["Amber"] = Color3.fromRGB(255, 191, 0),
+    ["Amethyst"] = Color3.fromRGB(153, 102, 204),
+    ["Crimson"] = Color3.fromRGB(220, 20, 60),
+    ["Emerald"] = Color3.fromRGB(80, 200, 120),
+    ["Sky Blue"] = Color3.fromRGB(135, 206, 235),
+    ["Mint"] = Color3.fromRGB(152, 255, 152),
+    ["Rose"] = Color3.fromRGB(255, 102, 204),
+    ["Lime"] = Color3.fromRGB(191, 255, 0),
+    ["Orange"] = Color3.fromRGB(255, 140, 0),
+    ["Steel"] = Color3.fromRGB(70, 130, 180),
+    ["Cobalt"] = Color3.fromRGB(0, 71, 171),
+    ["Midnight"] = Color3.fromRGB(25, 25, 112),
+    ["Sunset"] = Color3.fromRGB(255, 99, 71),
+    ["Lavender"] = Color3.fromRGB(230, 230, 250),
+    ["Charcoal"] = Color3.fromRGB(54, 69, 79)
+}
+
+SettingsTab:CreateDropdown({
+    Name = "Select Theme",
+    Options = table.pack(unpack((function()
+        local keys = {}
+        for k, _ in pairs(ThemeColors) do table.insert(keys, k) end
+        return keys
+    end)())),
+    Callback = function(selected)
+        local Interface = CoreGui:FindFirstChild("Rayfield")
+        if Interface and Interface:FindFirstChild("Main") then
+            local main = Interface.Main
+            for _, obj in ipairs(main:GetDescendants()) do
+                if obj:IsA("Frame") or obj:IsA("TextLabel") then
+                    pcall(function()
+                        obj.BackgroundColor3 = ThemeColors[selected]
+                    end)
+                end
+            end
+        end
+    end
+})
+
+-- Font Selector
+local FontList = {
+    "Legacy", "Arial", "ArialBold", "SourceSans", "SourceSansBold",
+    "SourceSansItalic", "SourceSansLight", "SourceSansSemibold",
+    "Gotham", "GothamMedium", "GothamBold", "GothamBlack",
+    "GothamSemibold", "Cartoon", "SciFi"
+}
+
+SettingsTab:CreateSection("Font")
+SettingsTab:CreateDropdown({
+    Name = "Choose UI Font",
+    Options = FontList,
+    Callback = function(font)
+        local Interface = CoreGui:FindFirstChild("Rayfield")
+        if Interface and Interface:FindFirstChild("Main") then
+            for _, obj in ipairs(Interface.Main:GetDescendants()) do
+                if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+                    pcall(function()
+                        obj.Font = Enum.Font[font]
+                    end)
+                end
+            end
+        end
+    end
+})
+
+-- GUI Close Notification
+local function sendStyledNotification()
+    Rayfield:Notify({
+        Title = "📦 Interface Hidden!",
+        Content = "Interface has been minimized.\n🔁 Press [K] to reopen it anytime.",
+        Duration = 6,
+        Image = "rbxassetid://7733992308"
+    })
+end
+
+-- Detect GUI close
+task.spawn(function()
+    repeat task.wait() until CoreGui:FindFirstChild("Rayfield")
+    local Interface = CoreGui:FindFirstChild("Rayfield")
+    local MainUI = Interface and Interface:FindFirstChild("Main")
+    if MainUI then
+        MainUI:GetPropertyChangedSignal("Visible"):Connect(function()
+            if not MainUI.Visible then
+                sendStyledNotification()
+            end
+        end)
+    end
+end)
+
+-- Reopen GUI on K key
+UserInputService.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.K then
+        local Interface = CoreGui:FindFirstChild("Rayfield")
+        if Interface and Interface:FindFirstChild("Main") then
+            Interface.Main.Visible = true
+        end
+    end
+end)
