@@ -36,7 +36,7 @@ SettingsTab:CreateSection("Theme")
 HumanoidTab:CreateSection("Humanoid")
 ForaskenTab:CreateSection("Forasken")
 
--- Copy to clipboard + notify
+-- Clipboard Helper
 local function CopyToClipboard(text)
     setclipboard(text)
     Rayfield:Notify({
@@ -76,7 +76,7 @@ InfoTab:CreateButton({
     end
 })
 
--- User's Roblox Profile at bottom
+-- Roblox Profile Link
 InfoTab:CreateSection("Your Roblox Profile")
 InfoTab:CreateParagraph({
     Title = LocalPlayer.DisplayName,
@@ -124,9 +124,8 @@ SettingsTab:CreateDropdown({
     Callback = function(selected)
         local Interface = CoreGui:FindFirstChild("Rayfield")
         if Interface and Interface:FindFirstChild("Main") then
-            local main = Interface.Main
-            for _, obj in ipairs(main:GetDescendants()) do
-                if obj:IsA("Frame") or obj:IsA("TextLabel") then
+            for _, obj in ipairs(Interface.Main:GetDescendants()) do
+                if obj:IsA("Frame") then
                     pcall(function()
                         obj.BackgroundColor3 = ThemeColors[selected]
                     end)
@@ -162,17 +161,17 @@ SettingsTab:CreateDropdown({
     end
 })
 
--- GUI Close Notification
+-- Notification when GUI is closed
 local function sendStyledNotification()
     Rayfield:Notify({
         Title = "📦 Interface Hidden!",
-        Content = "Interface has been minimized.\n🔁 Press [K] to reopen it anytime.",
-        Duration = 6,
+        Content = "Press [K] to reopen the UI.",
+        Duration = 5,
         Image = "rbxassetid://7733992308"
     })
 end
 
--- Detect GUI close
+-- Auto-detect GUI and connect visibility listener
 task.spawn(function()
     repeat task.wait() until CoreGui:FindFirstChild("Rayfield")
     local Interface = CoreGui:FindFirstChild("Rayfield")
@@ -186,12 +185,13 @@ task.spawn(function()
     end
 end)
 
--- Reopen GUI on K key
-UserInputService.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.K then
+-- Keybind: Press K to toggle GUI
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
         local Interface = CoreGui:FindFirstChild("Rayfield")
         if Interface and Interface:FindFirstChild("Main") then
-            Interface.Main.Visible = true
+            local MainUI = Interface.Main
+            MainUI.Visible = not MainUI.Visible
         end
     end
 end)
